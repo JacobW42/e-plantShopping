@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ProductList.css';
 import CartItem from './CartItem';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,9 +6,18 @@ import { addItem } from './CartSlice';
 
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
-    const [showPlants, setShowPlants] = useState(false);
+    const [addedToCart, setAddedToCart] = useState({}); // State to track added items
     const dispatch = useDispatch();
     const cart = useSelector(state => state.cart.items);
+
+    // Update the `addedToCart` state based on the cart's contents
+    useEffect(() => {
+        const updatedAddedToCart = {};
+        cart.forEach(item => {
+            updatedAddedToCart[item.name] = item.quantity > 0;
+        });
+        setAddedToCart(updatedAddedToCart);
+    }, [cart]);
 
     const handleAddToCart = (product) => {
         dispatch(addItem(product));
@@ -258,7 +267,6 @@ function ProductList({ onHomeClick }) {
 
     const handlePlantsClick = (e) => {
         e.preventDefault();
-        setShowPlants(true);
         setShowCart(false);
     };
 
@@ -269,7 +277,7 @@ function ProductList({ onHomeClick }) {
 
     return (
         <div>
-            <div className="navbar" style={styleObj}>
+            <div className="navbar" style={{ backgroundColor: '#4CAF50', padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="tag">
                     <div className="luxury">
                         <img src="https://cdn.pixabay.com/photo/2020/08/05/13/12/eco-5465432_1280.png" alt="" />
@@ -281,19 +289,35 @@ function ProductList({ onHomeClick }) {
                         </a>
                     </div>
                 </div>
-                <div style={styleObjUl}>
-                    <div> <a href="#" onClick={(e) => handlePlantsClick(e)} style={styleA}>Plants</a></div>
-                    <div> 
-                        <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
-                            <h1 className='cart'>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '1100px' }}>
+                    <div>
+                        <a href="#" onClick={(e) => handlePlantsClick(e)} style={{ color: 'white', fontSize: '30px', textDecoration: 'none' }}>
+                            Plants
+                        </a>
+                    </div>
+                    <div>
+                        <a href="#" onClick={(e) => handleCartClick(e)} style={{ color: 'white', fontSize: '30px', textDecoration: 'none' }}>
+                            <div style={{ position: 'relative', display: 'inline-block' }}>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68">
                                     <rect width="156" height="156" fill="none"></rect>
                                     <circle cx="80" cy="216" r="12"></circle>
                                     <circle cx="184" cy="216" r="12"></circle>
-                                    <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path>
+                                    <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" id="mainIconPathAttribute"></path>
                                 </svg>
-                                <span>{getTotalItems()}</span>
-                            </h1>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '5px',
+                                    right: '5px',
+                                    backgroundColor: 'red',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    padding: '5px 10px',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {getTotalItems()}
+                                </span>
+                            </div>
                         </a>
                     </div>
                 </div>
@@ -302,7 +326,7 @@ function ProductList({ onHomeClick }) {
                 <div className="product-grid">
                     {plantsArray.map((category, index) => (
                         <div key={index}>
-                            <h1><div>{category.category}</div></h1>
+                            <h1 className="category-title">{category.category}</h1>
                             <div className="product-list">
                                 {category.plants.map((plant, plantIndex) => (
                                     <div className="product-card" key={plantIndex}>
@@ -310,7 +334,18 @@ function ProductList({ onHomeClick }) {
                                         <div className="product-title">{plant.name}</div>
                                         <div className="product-description">{plant.description}</div>
                                         <div className="product-cost">{plant.cost}</div>
-                                        <button className="product-button" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
+                                        <button
+                                            className="product-button"
+                                            onClick={() => handleAddToCart(plant)}
+                                            disabled={addedToCart[plant.name]} // Disable button if already added
+                                            style={{
+                                                backgroundColor: addedToCart[plant.name] ? 'grey' : '#4CAF50',
+                                                color: addedToCart[plant.name] ? 'white' : 'black',
+                                                cursor: addedToCart[plant.name] ? 'not-allowed' : 'pointer',
+                                            }}
+                                        >
+                                            {addedToCart[plant.name] ? "Added to Cart" : "Add to Cart"}
+                                        </button>
                                     </div>
                                 ))}
                             </div>

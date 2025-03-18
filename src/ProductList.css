@@ -59,6 +59,25 @@ body {
     justify-content: center;
 }
 
+/* Center the category title with a thin black underline above and below */
+.category-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+    position: relative;
+}
+
+.category-title::before,
+.category-title::after {
+    content: "";
+    display: block;
+    height: 1px;
+    background-color: black;
+    width: 50%;
+    margin: 10px auto;
+}
+
 /* Product Card */
 .product-card {
     flex: 0 0 calc(33.33% - 20px); /* Adjust width for 3 cards per row with 20px gap */
